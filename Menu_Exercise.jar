@@ -1,0 +1,875 @@
+.data 
+menu: .asciiz "\n============MENU===========\n1. Nhap mang.\n2. Xuat mang.\n3. Liet ke cac so nguyen to.\n4. Liet ke cac so hoan thien.\n5. Dem so luong so chinh phuong.\n6. Tinh tong cac so doi xung.\n7. Tim gia tri lon nhat.\n8. Sap xep mang tang dan.\n9. Thoat"
+n: .word 0
+arr: .space 400 
+NhapMang: .asciiz"\t\tNhap mang: "
+str1: .asciiz"a["
+str2: .asciiz"]= "
+tb1: .asciiz"\nNhap so phan tu trong mang (n>0): "
+tb2: .asciiz"\nMang sau khi nhap la: "
+tb3: .asciiz"\nLiet ke cac so nguyen to "
+tb4: .asciiz"\nLiet ke cac so hoan thien "
+tb5: .asciiz"\nDem so luong so chinh phuong "
+tb6: .asciiz"\nTinh tong cac so doi xung "
+tb7: .asciiz"\nTim gia tri lon nhat "
+tb8: .asciiz"\Sap xep mang tang dan "
+option: .asciiz"\nNhap vao lua chon: "
+Alarm: .asciiz"\nLam on hay nhap lai!"
+
+.text
+ 
+li $v0,4
+la $a0,NhapMang
+syscall
+
+#Xuat tb1
+li $v0,4
+la $a0,tb1
+syscall
+
+#Nhap N
+li $v0,5
+syscall
+
+sw $v0,n
+
+lw $a0,n
+jal Nhap
+
+Menu:
+#Xuat menu
+li $v0,4
+la $a0,menu
+syscall
+
+#Xuat lua chon
+li $v0,4
+la $a0,option
+syscall
+
+#Nhap lua chon
+li $v0,5
+syscall
+
+move $s1,$v0
+
+beq $s1,1,Cau1
+beq $s1,2,Cau2
+beq $s1,3,Cau3
+beq $s1,4,Cau4
+beq $s1,5,Cau5
+beq $s1,6,Cau6
+beq $s1,7,Cau7
+beq $s1,8,Cau8
+beq $s1,9,KetThuc
+bgt $s1,10,ThongBao
+
+Cau1:
+
+#Xuat tb:
+li $v0,4
+la $a0,NhapMang
+syscall
+
+#Xuat tb1:
+li $v0,4
+la $a0,tb1
+syscall
+
+#Nhap n
+li $v0,5
+syscall
+
+#Luu vao n
+sw  $v0,n
+
+#Chuyen n vao $s1
+lw $a0,n
+jal Nhap
+
+j Menu
+
+Cau2:
+
+#Xuat tb2:
+li $v0,4
+la $a0,tb2
+syscall
+
+lw $a0,n
+jal Xuat
+
+j Menu
+
+Cau3:
+
+#Xuat tb3
+li $v0,4
+la $a0,tb3
+syscall
+
+lw $a0,n
+jal XuatNguyenTo
+
+j Menu
+
+Cau4:
+
+#Xuat t4
+li $v0,4
+la $a0,tb4
+syscall
+
+lw $a0,n
+jal XuatHoanThien
+
+j Menu
+ 
+Cau5:
+
+#Xuat tb5
+li $v0,4
+la $a0,tb5
+syscall
+
+lw $a0,n
+jal DemChinhPhuong
+
+move $s2,$v0
+
+li $v0,1
+move $a0,$s2
+syscall
+
+j Menu
+
+Cau6:
+
+#Xuat tb6
+li $v0,4
+la $a0,tb6
+syscall
+
+lw $a0,n
+jal TongDoiXung
+
+move $s2,$v0
+
+li $v0,1
+move $a0,$s2
+syscall
+
+j Menu
+
+Cau7:
+
+#Xuat tb7
+li $v0,4
+la $a0,tb7
+syscall
+
+lw $a0,n
+jal TimMax
+
+move $s2,$v0
+
+li $v0,1
+move $a0,$s2
+syscall
+
+j Menu
+
+Cau8:
+
+#Xuat tb8
+li $v0,4
+la $a0,tb8
+syscall
+
+lw $a0,n
+jal SapXepTangDan
+
+lw $a0,n
+jal Xuat
+
+j Menu
+
+ThongBao:
+#Xuat thong bao
+li $v0,4
+la $a0,Alarm
+syscall
+
+j Menu
+
+#CAC HAM:
+#dau thu tuc
+
+Nhap:
+#Khai bao stack
+addi $sp,$sp,-16
+
+#backup cac thanh ghi
+sw $ra,($sp)
+sw $s1,4($sp)
+sw $s0,8($sp)
+sw $t0,12($sp)
+
+#than thu tuc
+move $s1,$a0
+
+#khoi tao
+li $t0,0
+la $s0,arr 
+
+LapNhap:
+
+#Xuat str1:
+li $v0,4
+la $a0,str1
+syscall
+
+#Xuat i:
+li $v0,1
+move $a0,$t0
+syscall
+
+#Xuat str2:
+li $v0,4
+la $a0,str2
+syscall
+
+#Nhap gia tri
+li $v0,5
+syscall
+
+#Luu vao a[i]
+sw $v0,($s0)
+
+#Tang dia chi mang
+addi $s0,$s0,4
+addi $t0,$t0,1
+blt $t0,$s1,LapNhap
+
+#cuoi thu tuc
+#Luu vao cac thanh ghi
+lw $ra,($sp)
+lw $s1,4($sp)
+lw $a0,8($sp)
+lw $t0,12($sp)
+
+#Xoa stack
+addi $sp,$sp,16
+
+jr $ra
+
+#CAC HAM
+#dau thu tuc
+
+Xuat:
+#Khai bao stack
+addi $sp,$sp,-16
+
+#backup cac thanh ghi
+sw $ra,($sp)
+sw $s1,4($sp)
+sw $s0,8($sp)
+sw $t0,12($sp)
+
+#than thu tuc
+move $s1,$a0
+
+#Xuat mang
+#Khoi tao vong lap
+li $t0,0
+la $s0,arr
+
+LapXuat:
+
+#Xuat a[i]
+li $v0,1
+lw $a0,($s0)
+syscall
+
+#Xuat khoang trang
+li $v0,11
+li $a0,32
+syscall
+
+#Tang dia chi mang
+addi $s0,$s0,4
+addi $t0,$t0,1
+blt $t0,$s1,LapXuat
+
+#cuoi thu tuc
+#Luu vao cac thanh ghi
+lw $ra,($sp)
+lw $s1,4($sp)
+lw $s0,8($sp)
+lw $t0,12($sp)
+
+#Xoa stack
+addi $sp,$sp,16
+
+jr $ra
+
+#====HAM=====
+#dau thu tuc
+
+_NguyenTo:
+
+#Khai bao stack
+addi $sp,$sp,-20
+
+#backup cac thanh ghi
+sw $ra,($sp)
+sw $s1,4($sp)
+sw $s0,8($sp)
+sw $t0,12($sp)
+sw $t1,16($sp)
+
+#than thu tuc
+move $s0,$a0
+
+#khoi tao dem=0
+li $s1,0
+
+#khoi tao i=1
+li $t0,1
+
+_NguyenTo.Lap:
+
+#Tinh phan du
+div $s0,$t0
+mfhi $t1
+
+#Kiem tra du=0
+beq $t1,0,Dem
+j TangiNguyenTo
+
+Dem:
+addi $s1,$s1,1
+
+TangiNguyenTo:
+addi $t0,$t0,1
+
+#Kiem tra dieu kien lap
+ble $t0,$s0,_NguyenTo.Lap
+move $v0,$s1
+
+#cuoi thu tuc
+#Luu vao cac thanh ghi
+lw $ra,($sp)
+lw $s1,4($sp)
+lw $s0,8($sp)
+lw $t0,12($sp)
+lw $t1,16($sp)
+
+#Xoa stack
+addi $sp,$sp,20
+
+jr $ra
+
+#Xuat Nguyen To:
+#====HAM=====
+#dau thu tuc:
+
+XuatNguyenTo:
+addi $sp,$sp,-20
+
+#backup cac thanh ghi
+sw $ra,($sp)
+sw $s1,4($sp)
+sw $s0,8($sp)
+sw $t0,12($sp)
+sw $s2,16($sp)
+
+#than thu tuc
+move $s1,$a0
+
+#Khoi tao vong lap:
+li $t0,0
+la $s0,arr	
+
+LapXuatNguyenTo:
+
+lw $a0,($s0)
+jal _NguyenTo
+move $s2,$v0
+
+bne $s2,2,NguyenTo.Tang
+
+#xuat a[i]:
+li $v0,1
+lw $a0,($s0)
+syscall 
+
+#Xuat khoang trang
+li $v0,11
+li $a0,32
+syscall
+
+NguyenTo.Tang:
+
+addi $s0,$s0,4
+addi $t0,$t0,1
+blt  $t0,$s1,LapXuatNguyenTo
+
+#cuoi thu tuc
+#Luu vao cac thanh ghi
+lw $ra,($sp)
+lw $s1,4($sp)
+lw $s0,8($sp)
+lw $t0,12($sp)
+lw $s2,16($sp)
+
+#Xoa stack
+addi $sp,$sp,20
+
+jr $ra
+
+#Kiem tra hoan thien:
+#====HAM=====
+
+#dau thu tuc:
+SoHoanThien:
+addi $sp,$sp,-20
+
+#backup cac thanh ghi
+sw $ra,($sp)
+sw $t2,4($sp)
+sw $s0,8($sp)
+sw $t0,12($sp)
+sw $s1,16($sp)
+
+#than thu tuc
+move $s0,$a0
+
+#Khoi tao tong=0:
+li $t0,0
+li $t1,0
+
+Lap:
+#tinh phan tu
+div $s0,$t1
+mfhi $t2
+
+#Kiem tra du=0
+beq $t2,0,Tong
+j Tangihoanthien
+
+Tong:
+add $t0,$t0,$t1
+
+Tangihoanthien:
+addi $t1,$t1,1
+
+blt $t1,$s0,Lap
+
+#Luu ket qua tra ve
+move $v0,$t0
+
+#cuoi thu tuc
+#Luu vao cac thanh ghi
+lw $ra,($sp)
+lw $t2,4($sp)
+lw $s0,8($sp)
+lw $t0,12($sp)
+lw $t1,16($sp)
+
+#Xoa stack
+addi $sp,$sp,20
+
+jr $ra
+
+#Xuat so hoan thien:
+#dau thu tuc:
+XuatHoanThien:
+addi $sp,$sp,-24
+
+#backup cac thanh ghi
+sw $ra,($sp)
+sw $t0,4($sp)
+sw $s0,8($sp)
+sw $s1,12($sp)
+sw $s2,16($sp)
+sw $s3,20($sp)
+
+#than thu tuc
+move $s1,$a0
+
+#Khoi tao tong=0:
+li $t0,0
+la $s0,arr
+
+HoanThien.Lap:
+lw $a0,($s0)
+jal SoHoanThien
+
+lw $s3,($s0)
+move $s2,$v0
+bne $s2,$s3,HoanThien.Tang
+
+li $v0,1
+lw $a0,($s0)
+syscall
+
+li $v0,11
+li $a0,32
+syscall
+
+HoanThien.Tang:
+
+addi $t0,$t0,1
+addi $s0,$s0,4
+
+blt $t0,$s1,HoanThien.Lap
+
+#cuoi thu tuc
+#Luu vao cac thanh ghi
+lw $ra,($sp)
+lw $t0,4($sp)
+lw $s0,8($sp)
+lw $s1,12($sp)
+lw $s2,16($sp)
+lw $s3,20($sp)
+
+#Xoa stack
+addi $sp,$sp,24
+
+jr $ra
+
+#Ham kiem tra chinh phuong:
+#dau thu tuc:
+SoChinhPhuong:
+addi $sp,$sp,-20
+
+#backup cac thanh ghi
+sw $ra,($sp)
+sw $s0,4($sp)
+sw $t0,8($sp)
+sw $t1,12($sp)
+sw $t2,16($sp)
+
+#than thu tuc
+move $s0,$a0
+
+#Khoi tao i=1:
+li $t0,1
+li $t2,0
+
+LapCP:
+#tinh phan tu:
+div $s0,$t0	
+mflo $t1
+
+#kiem tra du=0
+mult $t1,$t1
+mflo $t1
+bne $t1,$s0,ChinhPhuong.Tang
+li $t2,1
+j NhayChinhPhuong
+
+ChinhPhuong.Tang:
+addi $t0,$t0,1
+blt $t0,$s0,LapCP
+
+NhayChinhPhuong:
+move $v0,$t2
+
+#cuoi thu tuc
+#Luu vao cac thanh ghi
+lw $ra,($sp)
+lw $s0,4($sp)
+lw $t0,8($sp)
+lw $t1,12($sp)
+lw $t2,16($sp)
+
+#Xoa stack
+addi $sp,$sp,20
+
+jr $ra
+
+#Ham dem so chinh phuong:
+#dau thu tuc:
+DemChinhPhuong:
+addi $sp,$sp,-24
+
+#backup cac thanh ghi
+sw $ra,($sp)
+sw $t0,4($sp)
+sw $s1,8($sp)
+sw $s2,12($sp)
+sw $s3,16($sp)
+sw $s4,20($sp)
+
+#than thu tuc
+move $s1,$a0
+
+#Khoi tao mang:
+li $t0,0
+la $s0,arr
+li $s2,0
+
+ChinhPhuong.Lap:
+
+lw $a0,($s0)
+jal SoChinhPhuong
+
+move $s3,$v0
+bne $s3,1,TangChinhPhuong
+
+addi $s2,$s2,1
+
+TangChinhPhuong:
+
+addi $t0,$t0,1
+addi $s0,$s0,4
+
+blt $t0,$s1,ChinhPhuong.Lap
+
+move $v0,$s2
+
+#cuoi thu tuc
+#Luu vao cac thanh ghi
+lw $ra,($sp)
+lw $t0,4($sp)
+lw $s1,8($sp)
+lw $s2,12($sp)
+lw $s3,16($sp)
+lw $s4,20($sp)
+
+#Xoa stack
+addi $sp,$sp,24
+
+jr $ra
+
+#Ham kiem tra doi xung:
+#dau thu tuc:
+DoiXung:
+addi $sp,$sp,-24
+
+#backup cac thanh ghi
+sw $ra,($sp)
+sw $s0,4($sp)
+sw $t0,8($sp)
+sw $t1,12($sp)
+sw $t2,16($sp)
+sw $t3,20($sp)
+
+#than thu tuc
+move $s0,$a0
+
+#gan chuoi nguoc=0 
+li $t0,0
+li $t3,0
+
+LapDX:
+li $t1,10
+#lay du
+div $s0,$t1
+mfhi $t2
+
+#tong dao nguoc chuoi
+mult $t0,$t1
+mflo $t0
+add $t0,$t0,$t2
+
+#s1 chia 10 lay phan nguyen
+div $s0,$s0,10
+addi $t3,$t3,1
+#dieu kien lap
+bne $s0,0,LapDX
+
+bge $t3,3,NhayDX
+li $t0,0
+
+NhayDX:
+move $v0,$t0
+
+#cuoi thu tuc
+#Luu vao cac thanh ghi
+lw $ra,($sp)
+lw $s0,4($sp)
+lw $t0,8($sp)
+lw $t1,12($sp)
+lw $t2,16($sp)
+lw $t3,20($sp)
+
+#Xoa stack
+addi $sp,$sp,24
+
+jr $ra
+
+#Ham tinh tong doi xung:
+#dau thu tuc:
+TongDoiXung:
+addi $sp,$sp,-28
+
+#backup cac thanh ghi
+sw $ra,($sp)
+sw $t0,4($sp)
+sw $t1,8($sp)
+sw $s0,12($sp)
+sw $s1,16($sp)
+sw $s2,20($sp)
+sw $s3,24($sp)
+
+#than thu tuc
+move $s1,$a0
+
+li $t0,0
+la $s0,arr
+li $t1,0
+TongDoiXung.Lap:
+lw $a0,($s0)
+jal DoiXung
+
+lw $s3($s0)
+move $s2,$v0
+
+bne $s2,$s3,TangiDoiXung
+add $t1,$t1,$s2
+
+TangiDoiXung:
+addi $t0,$t0,1
+addi $s0,$s0,4
+blt $t0,$s1,TongDoiXung.Lap
+
+move $v0,$t1
+
+#cuoi thu tuc
+#Luu vao cac thanh ghi
+lw $ra,($sp)
+lw $t0,4($sp)
+lw $t1,8($sp)
+lw $s0,12($sp)
+lw $s1,16($sp)
+lw $s2,20($sp)
+lw $s3,24($sp)
+
+#Xoa stack
+addi $sp,$sp,28
+
+jr $ra
+
+#Ham tim Max:
+#dau thu tuc:
+TimMax:
+addi $sp,$sp,-20
+
+#backup cac thanh ghi
+sw $ra,($sp)
+sw $t0,4($sp)
+sw $s0,8($sp)
+sw $t1,12($sp)
+sw $s2,16($sp)
+
+#than thu tuc
+move $s1,$a0
+
+#tim gia tri lon nhat
+#khoi tao mang
+li $t0,0
+la $s0,arr
+
+#khoi tao max=a[0]
+lw $t1,($s0)
+TimMax.Lap:
+
+#Lay gia tri a[i] vao $s2
+lw $s2,4($s0)
+bgt $t1,$s2,Max
+
+#gan s2 cho max
+move $t1,$s2
+
+Max:
+addi $s0,$s0,4
+addi $t0,$t0,1
+blt $t0,$s1,TimMax.Lap
+
+move $v0,$t1
+#cuoi thu tuc
+#Luu vao cac thanh ghi
+lw $ra,($sp)
+lw $t0,4($sp)
+lw $s0,8($sp)
+lw $t1,12($sp)
+lw $t2,16($sp)
+
+#Xoa stack
+addi $sp,$sp,20
+
+jr $ra
+
+#Ham sap xep tang dan:
+#dau thu tuc:
+SapXepTangDan:
+addi $sp,$sp,-32
+
+#backup cac thanh ghi
+sw $ra,($sp)
+sw $t0,4($sp)
+sw $t1,8($sp)
+sw $s4,12($sp)
+sw $s0,16($sp)
+sw $s1,20($sp)
+sw $s2,24($sp)
+sw $s3,28($sp)
+
+#than thu tuc
+move $s1,$a0
+
+li $t0,0
+la $s0,arr
+la $s2,arr
+
+LapTang2:
+add $t1,$t0,1
+lw $s3,($s0)
+
+LapTang1:
+lw $s4,4($s2)
+ble $s3,$s4,NhaySap
+
+sw $s4,($s0)
+sw $s3,4($s2)
+move $s3,$s4
+
+NhaySap:
+addi $t1,$t1,1
+addi $s2,$s2,4
+blt $t1,$s1,LapTang1
+
+addi $t1,$t1,-1
+addi $t0,$t0,1
+
+sxt:
+addi $t1,$t1,-1
+addi $s2,$s2,-4
+bgt $t1,$t0,sxt
+
+addi $s0,$s0,4
+blt $t0,$s1,LapTang2
+
+
+#cuoi thu tuc
+#Luu vao cac thanh ghi
+lw $ra,($sp)
+lw $t0,4($sp)
+lw $t1,8($sp)
+lw $s4,12($sp)
+lw $s0,16($sp)
+lw $s1,20($sp)
+lw $s2,24($sp)
+lw $s3,28($sp)
+
+#Xoa stack
+addi $sp,$sp,32
+
+jr $ra
+
+KetThuc:
+li $v0,10
+syscall
