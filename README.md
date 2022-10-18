@@ -1,4 +1,5 @@
-# MIP-MARS-ADVANCE
+### Computer Systems
+# MIP MARS ADVANCE
 Create a menu with full option for user to use process functionaly with:
 1. array
 2. prime numbers
